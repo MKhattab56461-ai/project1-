@@ -1,0 +1,1801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- ============================================================
+     TITLE / العنوان
+     The text shown on the browser tab.
+     ============================================================ -->
+<title>WebTutor — Learn HTML, CSS & JavaScript / تعلّم تطوير الواجهات</title>
+
+<!-- ============================================================
+     STYLE  (CSS lives here — in the <head>, exactly like on
+     W3Schools' "My First Web Page" lessons)
+
+     لغة CSS تعيش هنا داخل وسم <style> في <head>، تماماً كما في دروس
+     موقع W3Schools. هنا نتحكم في شكل الصفحة بالكامل: الألوان،
+     الخطوط، المسافات، وحتى التنسيق على الجوال.
+     ============================================================ -->
+<style>
+/* ============================================================
+   PART 1 OF THE CSS : DESIGN TOKENS (CSS variables)
+
+   CSS variables (custom properties) let us store a color ONCE
+   and reuse it everywhere. Dark mode just swaps these values.
+
+   الجزء الأول من CSS: متغيرات التصميم
+   نخزن اللون مرة واحدة ثم نعيد استخدامه في كل مكان،
+   والوضع الليلي يغيّر هذه القيم فقط.
+   ============================================================ */
+:root{
+  /* Colors / الألوان */
+  --brand:#04aa6d;      /* green — W3Schools signature / الأخضر المميز */
+  --brand-dark:#059862; /* darker green for hover / أخضر أغمق عند المرور */
+  --dark:#282a35;       /* near-black used for text blocks / أسود تقريباً */
+  --ink:#212529;        /* main text color / لون النص الأساسي */
+  --muted:#6c757d;      /* gray secondary text / رمادي للنصوص الثانوية */
+  --bg:#ffffff;         /* page background / خلفية الصفحة */
+  --panel:#f7f9fa;      /* soft panels like the sidebar / ألواح فاتحة */
+  --line:#e3e6e8;       /* thin borders / حدود رفيعة */
+  --code-bg:#f6f8fa;    /* code box background / خلفية صناديق الأكواد */
+  --code-line:#d0d7de;  /* code box border / حدود صندوق الكود */
+  --ok:#d1e7dd;         /* light green note / ملاحظة خضراء فاتحة */
+  --warn:#fff3cd;       /* light yellow note / ملاحظة صفراء فاتحة */
+  --shadow:0 2px 6px rgba(0,0,0,.06); /* soft shadow / ظل خفيف */
+}
+
+/* DARK MODE — same names, different values / الوضع الليلي — نفس الأسماء وقيم مختلفة
+   We switch it by setting data-theme="dark" on the <html> tag (see script.js) */
+:root[data-theme="dark"]{
+  --brand:#05c48a;
+  --dark:#f8f9fa;
+  --ink:#e8eaed;
+  --muted:#9aa0a6;
+  --bg:#202124;
+  --panel:#2d2e31;
+  --line:#3c4043;
+  --code-bg:#16181b;
+  --code-line:#3c4043;
+  --ok:#1e3a2f;
+  --warn:#3a3320;
+  --shadow:0 2px 8px rgba(0,0,0,.4);
+}
+
+/* Reset base / إعادة ضبط الأساسيات */
+*{ box-sizing:border-box; margin:0; padding:0; }
+
+html{ scroll-behavior:smooth; }   /* smooth scrolling when a link jumps / تمرير ناعم */
+
+body{
+  font-family:"Segoe UI", Tahoma, Arial, sans-serif; /* main font */
+  background:var(--bg);
+  color:var(--ink);
+  font-size:16px;
+  line-height:1.6;
+}
+
+/* Arabic text wrapper: forces right-to-left direction
+   غلاف النص العربي: يفرض الاتجاه من اليمين لليسار */
+.ar{ direction:rtl; unicode-bidi:isolate; display:inline-block; }
+.en{ display:inline-block; }
+.lang-sep{ color:var(--muted); margin:0 .3rem; } /* the little • between EN and AR */
+
+/* Every paragraph we write to screen already carries either .en or .ar text,
+   so bilingual lessons render English first, then Arabic. */
+
+/* ============================================================
+   PART 2 : TOP NAVIGATION BAR / شريط التنقل العلوي
+   ============================================================ */
+.topbar{
+  position:sticky; top:0; z-index:50;          /* sticks to top while scrolling */
+  display:flex; align-items:center; gap:.6rem; /* children in a row / أبناء في صف */
+  background:var(--bg);
+  border-bottom:1px solid var(--line);
+  padding:.5rem 1rem;
+  flex-wrap:wrap;
+}
+
+/* Brand / الشعار */
+.logo{ font-size:1.45rem; font-weight:800; text-decoration:none; color:var(--ink); white-space:nowrap; }
+.logo .dot{ color:var(--brand); } /* the green dot / النقطة الخضراء */
+.logo small{ display:block; font-size:.6rem; font-weight:500; color:var(--muted); letter-spacing:.5px; }
+
+/* Main nav pills / أزرار التنقل الرئيسية */
+.nav-pill{
+  text-decoration:none; padding:.35rem .8rem; border-radius:99px;
+  color:var(--ink); font-weight:600; border:1px solid transparent;
+  transition:background .15s;
+}
+.nav-pill:hover{ background:var(--panel); }
+.nav-pill.active{ background:var(--brand); color:#fff; } /* green pill when its lesson group is open */
+
+/* Search box / مربع البحث */
+.search-box{
+  display:flex; align-items:center; gap:.4rem;
+  background:var(--panel); border:1px solid var(--line);
+  border-radius:99px; padding:.3rem .7rem; flex:1 1 160px; max-width:340px;
+}
+.search-box input{
+  border:none; outline:none; background:transparent; width:100%;
+  color:var(--ink); font-size:.95rem;
+}
+.search-box input::placeholder{ color:var(--muted); }
+
+/* Icon buttons (hamburger, theme) / أزرار الأيقونات */
+.icon-btn{
+  background:var(--panel); border:1px solid var(--line); cursor:pointer;
+  border-radius:8px; padding:.4rem .65rem; font-size:1rem; line-height:1;
+  color:var(--ink);
+}
+.icon-btn:hover{ background:var(--brand); color:#fff; }
+#burger{ display:none; }  /* hidden on desktop, shown on mobile / مخفي على الكمبيوتر */
+
+/* ============================================================
+   PART 3 : LEFT SIDEBAR (the lesson list, like W3Schools)
+   القائمة الجانبية اليسرى: قائمة الدروس
+   ============================================================ */
+.sidenav{
+  position:fixed; left:0; top:60px; bottom:0;
+  width:250px; overflow-y:auto;
+  background:var(--panel);
+  border-right:1px solid var(--line);
+  padding:.9rem .7rem 2rem;
+  transition:transform .25s ease;
+}
+/* When the browser is narrow the sidebar hides itself by sliding off */
+@media (max-width:860px){
+  .sidenav{ transform:translateX(-105%); }
+  .sidenav.open{ transform:translateX(0); box-shadow:0 0 0 100vmax rgba(0,0,0,.3); }
+  #burger{ display:block; }
+  #searchWrap{ display:none; }
+}
+
+.sidenav h4{            /* group titles: HTML / CSS / JS */
+  font-size:.75rem; text-transform:uppercase; letter-spacing:1px;
+  color:var(--brand); margin:1rem .6rem .4rem;
+}
+.sidenav a{             /* one lesson link */
+  display:block; padding:.38rem .6rem; border-radius:7px;
+  color:var(--ink); text-decoration:none; font-size:.95rem;
+}
+.sidenav a:hover{ background:#ccefe1; }
+:root[data-theme="dark"] .sidenav a:hover{ background:#2b4a40; }
+.sidenav a.active{ background:var(--brand); color:#fff; font-weight:600; }
+
+/* ============================================================
+   PART 4 : MAIN CONTENT AREA / منطقة المحتوى
+   (margin-left leaves room for the fixed sidebar)
+   ============================================================ */
+main{ margin-left:266px; padding:1.6rem 2.2rem 6rem; max-width:1000px; }
+
+@media (max-width:860px){ main{ margin-left:0; padding:1rem; } }
+
+/* Hero panel at the very top / اللوحة الترحيبية */
+.hero{
+  background:linear-gradient(120deg,#04aa6d,#046b4a);
+  color:#fff; border-radius:14px; padding:2rem 2.2rem; margin-bottom:2rem;
+}
+.hero h1{ font-size:2rem; margin-bottom:.4rem; }
+.hero p{ opacity:.95; max-width:70ch; }
+.hero .btns{ margin-top:1.2rem; display:flex; gap:.6rem; flex-wrap:wrap; }
+
+/* Generic buttons / أزرار عامة */
+.btn{
+  border:none; cursor:pointer; border-radius:8px;
+  padding:.6rem 1.1rem; font-size:.98rem; font-weight:600;
+  text-decoration:none; display:inline-flex; align-items:center; gap:.45rem;
+  background:var(--brand); color:#fff; transition:filter .15s;
+}
+.btn:hover{ filter:brightness(1.08); }
+.btn.dark{ background:var(--dark); color:#fff; }
+.btn.ghost{ background:var(--panel); color:var(--ink); border:1px solid var(--line); }
+
+/* A single lesson / درس واحد */
+.lesson{
+  display:none;                  /* hidden by default — JS shows one at a time */
+  background:var(--bg); border:1px solid var(--line);
+  border-radius:14px; padding:1.6rem 1.9rem; margin-bottom:1.4rem;
+  box-shadow:var(--shadow);
+  animation:fade .3s ease;        /* nice fade-in when a lesson opens */
+}
+.lesson.open{ display:block; }
+@keyframes fade{ from{opacity:0; transform:translateY(6px);} to{opacity:1;} }
+
+/* Language chip at the top of each lesson / شارة اللغة أعلى كل درس */
+.chip{
+  display:inline-block; font-size:.72rem; font-weight:800; letter-spacing:1px;
+  padding:.2rem .55rem; border-radius:99px; margin-right:.5rem; vertical-align:2px;
+}
+.chip-html{ background:#e44d26; color:#fff; }
+.chip-css { background:#264de4; color:#fff; }
+.chip-js  { background:#f7df1e; color:#282a35; }
+.chip-site{ background:#282a35; color:#fff; }
+
+.lesson h2{ font-size:1.5rem; margin:.2rem 0 1rem; }
+.lesson h3{ font-size:1.12rem; margin:1.3rem 0 .4rem; color:var(--brand); }
+
+p{ margin:.5rem 0; }
+ul.tight{ margin:.4rem 0 .4rem 1.4rem; }
+ul.tight li{ margin:.25rem 0; }
+
+/* "Try it yourself" strip / شريط "جرّب بنفسك" */
+.trystrip{
+  display:flex; align-items:center; gap:.6rem; flex-wrap:wrap;
+  background:var(--panel); border:1px dashed var(--line);
+  border-radius:10px; padding:.6rem .9rem; margin:1rem 0;
+}
+.trystrip .hint{ font-size:.85rem; color:var(--muted); }
+
+/* Code panels / صناديق الأكواد */
+.example{
+  margin:1rem 0; border-radius:10px; overflow:hidden;
+  border:1px solid var(--line);
+}
+.example .example-head{
+  background:#e7e9eb; color:var(--dark);
+  padding:.45rem 1rem; font-weight:700; font-size:.95rem;
+  display:flex; justify-content:space-between; align-items:center; gap:.6rem;
+}
+:root[data-theme="dark"] .example .example-head{ background:#33363b; color:#eee; }
+pre.code{
+  background:var(--code-bg); padding:1rem 1.2rem; overflow:auto;
+  font: .9rem/1.6 "Cascadia Code","SFMono-Regular",Consolas,"Courier New",monospace;
+  tab-size:2;
+}
+pre.code code{ font:inherit; }
+
+/* Colors for the syntax highlighter (JS paints these classes)
+   ألوان تلوين الكود (تضيفها الجافاسكربت تلقائياً) */
+.c-c { color:#6e7781; font-style:italic; }  /* comment / تعليق */
+.c-t { color:#cf222e; font-weight:600; }     /* tag & selector / الوسم أو المحدد */
+.c-a { color:#8250df; }                      /* attribute & property name / اسم الخاصية */
+.c-s { color:#0a3069; }                      /* string & value / النص أو القيمة */
+.c-k { color:#cf222e; font-weight:600; }     /* JS keyword / كلمة جافاسكربت الرئيسية */
+.c-f { color:#8250df; }                      /* function name / اسم الدالة */
+.c-n { color:#953800; }                      /* number / رقم */
+:root[data-theme="dark"] .c-s{ color:#9ecbff; }
+:root[data-theme="dark"] .c-c{ color:#8b949e; }
+
+/* ============================================================
+   PART 5 : NOTE BOXES / صناديق الملاحظات
+   ============================================================ */
+.note{
+  border-radius:8px; padding:.7rem 1rem; margin:.9rem 0;
+  border:1px solid transparent;
+}
+.note.ok  { background:var(--ok);  border-color:#b5d8c5; }
+.note.warn{ background:var(--warn); border-color:#e6d08a; }
+
+/* ============================================================
+   PART 6 : INTERACTIVE DEMO AREAS / مناطق التجارب التفاعلية
+   ============================================================ */
+.demo{
+  border:2px dashed var(--brand); border-radius:12px;
+  padding:1rem 1.2rem; margin:1.1rem 0; background:var(--panel);
+}
+.demo h3{ margin-top:0; }
+.demo .controls{ display:flex; gap:1.2rem; flex-wrap:wrap; margin:.8rem 0; }
+.demo label{ display:flex; align-items:center; gap:.45rem; font-size:.9rem; }
+.demo input[type=range]{ width:140px; }
+.demo input[type=number]{ width:70px; padding:.15rem .3rem; }
+.demo output{ font-weight:700; color:var(--brand); }
+.demo .readout{
+  font-family:Consolas,monospace; background:var(--code-bg);
+  border:1px solid var(--code-line); border-radius:8px;
+  padding:.4rem .7rem; font-size:.85rem; margin-top:.5rem;
+}
+
+/* ---- color mixer box / صندوق خلط الألوان ---- */
+#colorBox{
+  width:180px;height:110px;border-radius:10px;margin:.6rem 0;
+  border:1px solid var(--line); transition:background .12s;
+}
+
+/* ---- box model / نموذج الصندوق ---- */
+.boxmodel-wrap{ display:flex; gap:2rem; flex-wrap:wrap; align-items:center; }
+#bx{ background:var(--panel); border:6px dashed #b8b8b8; padding:8px; border-radius:10px; } /* margin zone */
+#bx-in{ background:#a8e6cf; border:6px solid #4c9f70; padding:14px; border-radius:6px; }
+#bx-content{
+  width:150px; height:90px; background:#1d9bf0; color:#fff;
+  display:flex; align-items:center; justify-content:center; text-align:center;
+  font-size:.9rem; padding:2px;
+}
+/* flex demo boxes / صناديق تجربة flex */
+.flex-stage{ border:2px solid var(--brand); border-radius:10px; min-height:150px; padding:.7rem; display:flex; gap:.6rem; background:var(--bg); }
+.flex-stage div{ background:#04aa6d; color:#fff; border-radius:8px; padding:1.2rem .4rem; width:56px; text-align:center; font-weight:700; }
+#flexStage{ transition:all .3s ease; }
+.flex-stage div:nth-child(2){ background:#f1c40f; color:#282a35; }
+.flex-stage div:nth-child(3){ background:#e74c3c; }
+
+/* ---- click counter demo / عداد النقرات ---- */
+#counterNum{ font-size:3rem; font-weight:800; color:var(--brand); }
+
+/* ============================================================
+   PART 7 : PREV / NEXT BUTTONS + FOOTER
+   أزرار السابق/التالي أسفل كل درس + التذييل
+   ============================================================ */
+.lessonfoot{
+  display:flex; justify-content:space-between; gap:.6rem;
+  border-top:1px solid var(--line); margin-top:1.6rem; padding-top:1rem;
+}
+.lessonfoot .spacer{ width:130px; } /* keeps layout balanced / لموازنة التخطيط */
+/* The prev/next strip lives outside <main>, so give it the same
+   indentation to line up with the lessons / ليطابق محاذاة الدروس */
+#lessonfoots{ margin-left:266px; max-width:1000px; padding:0 2.2rem; }
+@media (max-width:860px){ #lessonfoots{ margin-left:0; padding:0 1rem; } }
+
+footer.site{
+  border-top:1px solid var(--line); padding:1rem 0 2.5rem; text-align:center;
+  font-size:.85rem; color:var(--muted);
+}
+
+/* ============================================================
+   PART 8 : "TRY IT YOURSELF" EDITOR / محرّر "جرّب بنفسك"
+   A full-screen overlay with code on the left and a live
+   preview (iframe) on the right. Hidden until opened.
+   ============================================================ */
+.editor{
+  position:fixed; inset:0; z-index:100; background:var(--bg);
+  display:none; flex-direction:column;
+}
+.editor.open{ display:flex; }
+.ed-top{
+  display:flex; align-items:center; gap:.5rem; flex-wrap:wrap;
+  padding:.5rem .8rem; border-bottom:1px solid var(--line); background:var(--panel);
+}
+.ed-top .title{ font-weight:700; }
+.ed-top select{
+  border:1px solid var(--line); border-radius:6px; padding:.3rem .5rem;
+  background:var(--bg); color:var(--ink);
+}
+.ed-top .grow{ flex:1; }
+/* small red dot = code changed, not saved / نقطة حمراء = تغيّر الكود */
+#edDirty{ width:10px;height:10px;border-radius:50%;background:#e74c3c; display:none; }
+
+.ed-grid{ flex:1; display:flex; min-height:0; }
+.ed-grid textarea{
+  flex:1; border:none; border-right:1px solid var(--line);
+  padding:1rem; font: .9rem/1.5 Consolas,monospace; resize:none; outline:none;
+  background:var(--code-bg); color:var(--ink); white-space:pre; tab-size:2;
+}
+.ed-grid .preview{ flex:1; border:none; background:#fff; }
+@media (max-width:700px){ .ed-grid{ flex-direction:column; } .ed-grid textarea{ border-right:none; border-bottom:1px solid var(--line); min-height:220px; } }
+
+/* ============================================================
+   PART 9 : QUIZ / الاختبار
+   ============================================================ */
+.quiz-q{ border:1px solid var(--line); border-radius:10px; padding:1rem; margin:.9rem 0; background:var(--panel); }
+.quiz-q .qtitle{ font-weight:700; margin-bottom:.6rem; }
+.quiz-opt{
+  display:block; width:100%; text-align:left; cursor:pointer;
+  border:1px solid var(--line); background:var(--bg); color:var(--ink);
+  border-radius:8px; padding:.5rem .8rem; margin:.35rem 0; font-size:.97rem;
+}
+.quiz-opt:hover{ border-color:var(--brand); }
+.quiz-opt.right{ background:#d1e7dd; border-color:#2e9c6a; font-weight:700; }
+.quiz-opt.wrong{ background:#f8d7da; border-color:#dc3545; }
+#quizScore{ font-size:1.1rem; font-weight:700; }
+
+/* Small helper / مساعد صغير */
+.small{ font-size:.85rem; color:var(--muted); }
+kbd{ background:var(--panel); border:1px solid var(--code-line); border-bottom-width:2px; border-radius:5px; padding:.05rem .35rem; font-family:Consolas,monospace; font-size:.85em; }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     TOP NAVIGATION BAR / شريط التنقل العلوي
+     <header> = semantic "intro area of the page"
+     ============================================================ -->
+<header class="topbar">
+
+  <!-- Brand / الشعار -->
+  <a class="logo" href="#" onclick="return go('welcome')">WebTutor<span class="dot">.</span>
+    <small>Learn front-end / تعلّم الواجهات الأمامية</small>
+  </a>
+
+  <!-- Buttons for the 3 big sections / أزرار الأقسام الثلاثة -->
+  <a class="nav-pill" data-go="structure" href="#structure" onclick="return go('structure')">HTML</a>
+  <a class="nav-pill" data-go="css-style" href="#css-style" onclick="return go('css-style')">CSS</a>
+  <a class="nav-pill" data-go="js-events" href="#js-events" onclick="return go('js-events')">JavaScript</a>
+  <a class="nav-pill" data-go="quiz" href="#quiz" onclick="return go('quiz')">Quiz</a>
+
+  <!-- Search: filters the lesson list (see script) / بحث في قائمة الدروس -->
+  <div class="search-box" id="searchWrap">
+    <span aria-hidden="true">🔍</span>
+    <input id="searchBox" type="search" placeholder="Search lessons... / ابحث عن درس">
+  </div>
+
+  <div class="grow" style="flex:1"></div>
+
+  <!-- Dark mode toggle / زر الوضع الليلي -->
+  <button class="icon-btn" id="themeBtn" title="Dark mode / الوضع الليلي" aria-label="toggle dark mode">🌙</button>
+
+  <!-- Hamburger (mobile only) / زر القائمة على الجوال -->
+  <button class="icon-btn" id="burger" aria-label="open menu">☰</button>
+</header>
+
+<!-- ============================================================
+     LEFT SIDEBAR / القائمة الجانبية لليسار
+     <nav> + <aside> = navigation that is separate from main content
+     ============================================================ -->
+<aside class="sidenav" id="sidenav">
+  <h4>HTML</h4>
+  <a data-s="structure" href="#structure" onclick="return go('structure')">1 · Page structure / بنية الصفحة</a>
+  <a data-s="text"      href="#text"      onclick="return go('text')">2 · Headings & text / العناوين والنصوص</a>
+  <a data-s="media"     href="#media"     onclick="return go('media')">3 · Links, images, lists / الروابط والصور والقوائم</a>
+  <a data-s="forms"     href="#forms"     onclick="return go('forms')">4 · Forms / النماذج</a>
+
+  <h4>CSS</h4>
+  <a data-s="css-intro" href="#css-intro" onclick="return go('css-intro')">1 · What is CSS? / ما هي CSS؟</a>
+  <a data-s="css-style" href="#css-style" onclick="return go('css-style')">2 · Colors & text / الألوان والنصوص</a>
+  <a data-s="css-box"   href="#css-box"   onclick="return go('css-box')">3 · Box model / نموذج الصندوق</a>
+  <a data-s="css-flex"  href="#css-flex"  onclick="return go('css-flex')">4 · Flexbox layout / التخطيط المرن</a>
+
+  <h4>JavaScript</h4>
+  <a data-s="js-intro"  href="#js-intro"  onclick="return go('js-intro')">1 · What is JS? / ما هي الجافاسكربت؟</a>
+  <a data-s="js-events" href="#js-events" onclick="return go('js-events')">2 · Events & functions / الأحداث والدوال</a>
+  <a data-s="js-dom"    href="#js-dom"    onclick="return go('js-dom')">3 · The DOM / نموذج المستند</a>
+
+  <h4>Extras / إضافات</h4>
+  <a data-s="tryit-page" href="#tryit-page" onclick="return go('tryit-page')">🧪 How the editor works / كيف يعمل المحرّر؟</a>
+  <a data-s="quiz"       href="#quiz"       onclick="return go('quiz')">✅ Quiz yourself / اختبر نفسك</a>
+</aside>
+
+<!-- ============================================================
+     MAIN / المحتوى الرئيسي
+     <main> holds the lessons. Only ONE .lesson is visible at a
+     time — the JavaScript shows it and hides the others.
+     ============================================================ -->
+<main id="main">
+
+  <!-- ---------- HERO ---------- -->
+  <section class="hero" id="welcome">
+    <h1><span class="en">Learn HTML · CSS · JavaScript</span></h1>
+    <h1 class="ar" lang="ar" style="font-size:1.3rem">تعلّم HTML و CSS و JavaScript من الصفر</h1>
+    <p class="en">This whole page is written in <b>plain HTML, CSS and JavaScript</b> — no other tools. Every
+      lesson explains its own code, in English and Arabic, so you read the theory and see it working at the same time.</p>
+    <p class="ar" lang="ar">هذه الصفحة كاملة مكتوبة بلغات HTML و CSS و JavaScript فقط، بدون أي أدوات أخرى. كل درس
+      يشرح الكود الخاص به بالإنجليزية والعربية، فتقرأ النظرية وتراها تعمل أمامك في نفس الوقت.</p>
+    <div class="btns">
+      <a class="btn" href="#structure" onclick="return go('structure')">▶ <span class="en">Start with HTML</span> <span class="ar" lang="ar">ابدأ بتعلم HTML</span></a>
+      <a class="btn ghost" href="#css-intro" onclick="return go('css-intro')">CSS</a>
+      <a class="btn ghost" href="#js-intro" onclick="return go('js-intro')">JavaScript</a>
+      <a class="btn dark" href="#tryit-page" onclick="return go('tryit-page')">🧪 <span class="en">See how the editor works</span></a>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       LESSON 0 : HOW THE 3 LANGUAGES WORK TOGETHER
+       ============================================================ -->
+  <section class="lesson" id="how">
+    <h2><span class="chip chip-site">HTML+CSS+JS</span>
+      <span class="en">How the 3 languages work together</span>
+      <span class="lang-sep">•</span><span class="ar" lang="ar">كيف تعمل اللغات الثلاث معاً؟</span></h2>
+
+    <p class="en">Think of a house (or building): <b>HTML</b> is the <i>structure</i> — walls, rooms, doors.
+      <b>CSS</b> is the <i>decoration</i> — paint, furniture, curtains. <b>JavaScript</b> is the <i>electricity</i> —
+      the things that <u>happen</u>: lights turn on, doors open.</p>
+    <p class="ar" lang="ar">تخيّل منزلاً: <b>HTML</b> هي <i>الهيكل</i> — الجدران والغرف والأبواب. أما <b>CSS</b>
+      فهي <i>الديكور</i> — الدهان والأثاث والستائر. و<b>الجافاسكربت JavaScript</b> هي <i>الكهرباء</i> —
+      الأشياء التي <u>تحدث</u>: الأضواء تُضاء والأبواب تُفتح.</p>
+
+    <h3><span class="en">See it inside THIS page / انظرها داخل هذه الصفحة نفسها</span></h3>
+    <ul class="tight">
+      <li class="en"><kbd>&lt;header class="topbar"&gt;</kbd> … <kbd>&lt;/header&gt;</kbd> = the top bar is <b>HTML</b> (structure).</li>
+      <li class="ar" lang="ar"><kbd>&lt;header class="topbar"&gt;</kbd> … <kbd>&lt;/header&gt;</kbd> = الشريط العلوي هو <b>HTML</b> (الهيكل).</li>
+      <li class="en"><kbd>header.topbar { position:sticky; }</kbd> inside <kbd>&lt;style&gt;</kbd> = its green/gray colors and sticky position are <b>CSS</b> (design).</li>
+      <li class="ar" lang="ar"><kbd>header.topbar { position:sticky; }</kbd> داخل <kbd>&lt;style&gt;</kbd> = ألوانه وتثبيته أعلى الصفحة هي <b>CSS</b> (التصميم).</li>
+      <li class="en">Clicking a sidebar lesson runs the <b>JavaScript</b> function <kbd>go('lessonId')</kbd>, which shows one <kbd>.lesson</kbd> and hides the rest (behaviour).</li>
+      <li class="ar" lang="ar">النقر على درس في القائمة يشغّل دالة <b>الجافاسكربت</b> <kbd>go('lessonId')</kbd> التي تُظهر درساً واحداً وتُخفي البقية (السلوك).</li>
+    </ul>
+
+    <h3><span class="en">Anatomy of an HTML file / تشريح ملف HTML</span></h3>
+    <div class="example">
+      <div class="example-head"><span class="en">Example — the skeleton of every web page</span><span class="ar" lang="ar">مثال — الهيكل الأساسي لأي صفحة ويب</span>
+        <button class="btn dark" type="button" data-try="skel-doc">▶ <span class="en">Try it</span> <span class="ar" lang="ar">جرّب</span></button>
+      </div>
+      <pre class="code" data-code="skel-doc"><code></code></pre>
+    </div>
+
+    <div class="note ok">
+      <p class="en"><b>Tip:</b> in your browser press <kbd>Ctrl+Shift+I</kbd> (Windows) or <kbd>Cmd+Opt+I</kbd> (Mac) to open
+        DevTools. You can then inspect the code of <b>this</b> page live.</p>
+      <p class="ar" lang="ar"><b>نصيحة:</b> اضغط في المتصفح <kbd>Ctrl+Shift+I</kbd> (ويندوز) أو <kbd>Cmd+Opt+I</kbd> (ماك)
+        لفتح أدوات المطوّر، ويمكنك فحص كود <b>هذه</b> الصفحة مباشرة.</p>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       LESSON HTML 1 : PAGE STRUCTURE / بنية الصفحة
+       ============================================================ -->
+  <section class="lesson" id="structure">
+    <h2><span class="chip chip-html">HTML</span>
+      <span class="en">1 · Page structure — the tags that hold everything</span>
+      <span class="ar" lang="ar">1 · بنية الصفحة — الوسوم التي تحمل كل شيء</span></h2>
+
+    <p class="en">HTML is made of <b>tags</b>: words between <kbd>&lt; &gt;</kbd>. Most tags come in pairs —
+      an opening tag <kbd>&lt;html&gt;</kbd> and a closing tag <kbd>&lt;/html&gt;</kbd> (note the <b>/</b>).</p>
+    <p class="ar" lang="ar">HTML تتكوّن من <b>وسوم (Tags)</b>: كلمات بين <kbd>&lt;</kbd> و <kbd>&gt;</kbd>.
+      أغلب الوسوم تأتي في أزواج — وسم افتتاح <kbd>&lt;html&gt;</kbd> ووسم إغلاق <kbd>&lt;/html&gt;</kbd> (لاحظ <b>/</b>).</p>
+
+    <div class="example">
+      <div class="example-head"><span class="en">Every tag explained / شرح كل وسم</span>
+        <button class="btn dark" type="button" data-try="skel-doc">▶ <span class="en">Try it</span></button>
+      </div>
+      <pre class="code" data-code="skel-notes"><code></code></pre>
+    </div>
+
+    <h3><span class="en">Where are these tags on THIS page? / أين توجد هذه الوسوم في هذه الصفحة؟</span></h3>
+    <ul class="tight">
+      <li class="en"><kbd>&lt;html lang="en"&gt;</kbd> — the root element that wraps everything; <kbd>lang</kbd> tells browsers/translators the main language.</li>
+      <li class="ar" lang="ar"><kbd>&lt;html lang="en"&gt;</kbd> — العنصر الجذر الذي يغلّف كل شيء؛ و<kbd>lang</kbd> يخبر المتصفح باللغة الأساسية.</li>
+      <li class="en"><kbd>&lt;head&gt;</kbd> — invisible settings: title, character set, the <kbd>&lt;style&gt;</kbd> (CSS) and <kbd>&lt;script&gt;</kbd> (JS) live here.</li>
+      <li class="ar" lang="ar"><kbd>&lt;head&gt;</kbd> — إعدادات غير مرئية: العنوان، ترميز الأحرف، ويعيش هنا <kbd>&lt;style&gt;</kbd> (CSS) و <kbd>&lt;script&gt;</kbd> (الجافاسكربت).</li>
+      <li class="en"><kbd>&lt;body&gt;</kbd> — everything the visitor can see. This very sentence lives in our <kbd>&lt;body&gt;</kbd>!</li>
+      <li class="ar" lang="ar"><kbd>&lt;body&gt;</kbd> — كل ما يراه الزائر. هذه الجملة نفسها تعيش داخل <kbd>&lt;body&gt;</kbd> لدينا!</li>
+    </ul>
+
+    <div class="note warn">
+      <p class="en"><b>Remember:</b> indentation (spaces) is only for humans to read — browsers ignore extra spaces.
+        Always indent children inside their parent; it keeps code readable.</p>
+      <p class="ar" lang="ar"><b>تذكّر:</b> المسافات البادئة (الإزاحة) للقراءة فقط — المتصفح يتجاهل المسافات الزائدة.
+        حاذِ العناصر الداخلية تحت عنصرها الأب دائماً ليبقى الكود مقروءاً.</p>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       LESSON HTML 2 : HEADINGS & TEXT / العناوين والنصوص
+       ============================================================ -->
+  <section class="lesson" id="text">
+    <h2><span class="chip chip-html">HTML</span>
+      <span class="en">2 · Headings, paragraphs & formatting</span>
+      <span class="ar" lang="ar">2 · العناوين والفقرات والتنسيق</span></h2>
+
+    <p class="en">Headings go from <kbd>&lt;h1&gt;</kbd> (biggest) to <kbd>&lt;h6&gt;</kbd> (smallest).
+      Use <b>one</b> <kbd>&lt;h1&gt;</kbd> per page (it matters for search engines). Paragraphs use <kbd>&lt;p&gt;</kbd>.</p>
+    <p class="ar" lang="ar">العناوين تبدأ من <kbd>&lt;h1&gt;</kbd> (الأكبر) حتى <kbd>&lt;h6&gt;</kbd> (الأصغر).
+      استخدم <b>وسم h1 واحداً</b> في الصفحة (مهم لمحركات البحث). الفقرات تكتب بـ <kbd>&lt;p&gt;</kbd>.</p>
+
+    <div class="example">
+      <div class="example-head"><span class="en">Example — headings and text tags / مثال — العناوين ووسوم النص</span>
+        <button class="btn dark" type="button" data-try="text-demo">▶ <span class="en">Try it</span> <span class="ar" lang="ar">جرّب</span></button>
+      </div>
+      <pre class="code" data-code="text-demo"><code></code></pre>
+    </div>
+
+    <div class="note ok">
+      <p class="en"><b>New here:</b> <kbd>&lt;strong&gt;</kbd> = important (shows bold), <kbd>&lt;em&gt;</kbd> =
+        emphasis (italic), <kbd>&lt;br&gt;</kbd> = line break, <kbd>&lt;hr&gt;</kbd> = horizontal line, and
+        <kbd>&lt;!-- comment --&gt;</kbd> = a note invisible on screen.</p>
+      <p class="ar" lang="ar"><b>جديد هنا:</b> <kbd>&lt;strong&gt;</kbd> مهم (يظهر عريضاً)، <kbd>&lt;em&gt;</kbd>
+        للتوكيد (مائل)، <kbd>&lt;br&gt;</kbd> سطر جديد، <kbd>&lt;hr&gt;</kbd> خط أفقي، و <kbd>&lt;!-- تعليق --&gt;</kbd>
+        ملاحظة لا تظهر على الشاشة.</p>
+    </div>
+
+    <!-- Bilingual headings demo below is a LIVE <h3> — inspect it with DevTools -->
+    <p class="small"><span class="en">The headings on this page (H1 in the hero, H2 lesson titles, H3 sub-headings) are all
+      real HTML you can inspect with <kbd>Ctrl+Shift+I</kbd>.</span>
+      <span class="ar" lang="ar">العناوين في هذه الصفحة (H1 في الواجهة، H2 لعناوين الدروس، H3 للعناوين الفرعية)
+        كلها HTML حقيقي يمكنك فحصه بـ <kbd>Ctrl+Shift+I</kbd>.</span></p>
+  </section>
+
+  <!-- ============================================================
+       LESSON HTML 3 : LINKS, IMAGES, LISTS / الروابط والصور والقوائم
+       ============================================================ -->
+  <section class="lesson" id="media">
+    <h2><span class="chip chip-html">HTML</span>
+      <span class="en">3 · Links, images & lists</span>
+      <span class="ar" lang="ar">3 · الروابط والصور والقوائم</span></h2>
+
+    <p class="en">A link is an <b>anchor</b>: <kbd>&lt;a href="https://…"&gt;text&lt;/a&gt;</kbd>. The extra
+      <kbd>href="…"</kbd> is called an <b>attribute</b> — information written inside the opening tag.</p>
+    <p class="ar" lang="ar">الرابط هو "مرساة": <kbd>&lt;a href="https://…"&gt;نص&lt;/a&gt;</kbd>. الكلمة الإضافية
+      <kbd>href="…"</kbd> تُسمّى <b>خاصية أو سمة (Attribute)</b> — معلومات تُكتب داخل وسم الافتتاح.</p>
+
+    <div class="example">
+      <div class="example-head"><span class="en">Example — anchors, images, lists / مثال — الروابط والصور والقوائم</span>
+        <button class="btn dark" type="button" data-try="media-demo">▶ <span class="en">Try it</span> <span class="ar" lang="ar">جرّب</span></button>
+      </div>
+      <pre class="code" data-code="media-demo"><code></code></pre>
+    </div>
+
+    <h3><span class="en">Attribute cheat-sheet / ورقة خصائص سريعة</span></h3>
+    <ul class="tight">
+      <li class="en"><kbd>&lt;img src="pic.jpg" alt="photo"&gt;</kbd> — <b>src</b> = file/URL, <b>alt</b> = text if image can't load (also read aloud for blind users).</li>
+      <li class="ar" lang="ar"><kbd>&lt;img src="pic.jpg" alt="صورة"&gt;</kbd> — <b>src</b> = مسار الملف، و<b>alt</b> = نص يظهر لو تعذّر تحميل الصورة (ويُقرأ للمكفوفين).</li>
+      <li class="en"><kbd>&lt;a href="…" target="_blank"&gt;</kbd> — <b>target="_blank"</b> opens the link in a new tab.</li>
+      <li class="ar" lang="ar"><kbd>&lt;a href="…" target="_blank"&gt;</kbd> — <b>target="_blank"</b> يفتح الرابط في تبويب جديد.</li>
+      <li class="en"><kbd>&lt;ul&gt;</kbd> = bulleted list, <kbd>&lt;ol&gt;</kbd> = numbered list; each item is <kbd>&lt;li&gt;</kbd>.</li>
+      <li class="ar" lang="ar"><kbd>&lt;ul&gt;</kbd> قائمة نقطية، و<kbd>&lt;ol&gt;</kbd> قائمة مرقّمة؛ كل عنصر <kbd>&lt;li&gt;</kbd>.</li>
+    </ul>
+  </section>
+
+  <!-- ============================================================
+       LESSON HTML 4 : FORMS / النماذج
+       ============================================================ -->
+  <section class="lesson" id="forms">
+    <h2><span class="chip chip-html">HTML</span>
+      <span class="en">4 · Forms — getting input from the user</span>
+      <span class="ar" lang="ar">4 · النماذج — جمع بيانات المستخدم</span></h2>
+
+    <p class="en">A <kbd>&lt;form&gt;</kbd> collects user input. Inside it you use <kbd>&lt;input&gt;</kbd>
+      (text, email, password, number…), <kbd>&lt;textarea&gt;</kbd> (multi-line), <kbd>&lt;select&gt;</kbd>
+      (dropdown) and <kbd>&lt;button&gt;</kbd>. Give each field a <b>label</b> for accessibility.</p>
+    <p class="ar" lang="ar">يجمع <kbd>&lt;form&gt;</kbd> بيانات المستخدم. داخله نستخدم <kbd>&lt;input&gt;</kbd>
+      (نص، بريد، كلمة مرور، رقم…)، و<kbd>&lt;textarea&gt;</kbd> (عدة أسطر)، و<kbd>&lt;select&gt;</kbd>
+      (قائمة منسدلة) و <kbd>&lt;button&gt;</kbd>. أعطِ كل حقل <b>وسماً توضيحياً label</b> لسهولة الوصول.</p>
+
+    <div class="example">
+      <div class="example-head"><span class="en">Example — a small form / مثال — نموذج صغير</span>
+        <button class="btn dark" type="button" data-try="form-demo">▶ <span class="en">Try it</span> <span class="ar" lang="ar">جرّب</span></button>
+      </div>
+      <pre class="code" data-code="form-demo"><code></code></pre>
+    </div>
+
+    <div class="note warn">
+      <p class="en"><b>Forms need JavaScript or a server to be useful</b> — by itself HTML only sends data to the
+        <kbd>action</kbd> address. In lesson <i>JavaScript 3</i> we read an input field live without sending anything.</p>
+      <p class="ar" lang="ar"><b>النموذج وحده لا يكفي</b> — بدون جافاسكربت أو خادم، يرسل HTML البيانات فقط إلى عنوان
+        <kbd>action</kbd>. في درس "الجافاسكربت 3" سنقرأ حقل الإدخال مباشرة دون إرسال أي شيء.</p>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       LESSON CSS 1 : WHAT IS CSS? / ما هي CSS؟
+       ============================================================ -->
+  <section class="lesson" id="css-intro">
+    <h2><span class="chip chip-css">CSS</span>
+      <span class="en">1 · What is CSS and what can it change?</span>
+      <span class="ar" lang="ar">1 · ما هي CSS وماذا تستطيع تغييرها؟</span></h2>
+
+    <p class="en"><b>CSS = Cascading Style Sheets.</b> It selects HTML elements and gives them <i>styles</i>:
+      colors, sizes, spacing, position. A rule has three parts:</p>
+    <p class="ar" lang="ar"><b>CSS = أوراق الأنماط المتتالية.</b> تختار عناصر HTML وتعطيها <i>أنماطاً</i>:
+      ألواناً وأحجاماً ومسافات ومواضع. القاعدة تتكوّن من ثلاثة أجزاء:</p>
+
+    <div class="example">
+      <div class="example-head"><span class="en">Anatomy of a CSS rule / تشريح قاعدة CSS</span></div>
+      <pre class="code" data-code="css-anatomy"><code></code></pre>
+    </div>
+
+    <div class="demo">
+      <h3><span class="en">💡 Live demo: what CSS can do / تجربة: ماذا تستطيع CSS أن تفعل؟</span></h3>
+      <p class="en">Press a button — CSS changes this very paragraph live.</p>
+      <p class="ar" lang="ar">اضغط زراً — وستغيِّر CSS هذه الفقرة نفسها مباشرة.</p>
+      <div id="cssDemoTarget" style="padding:1rem; background:#eef; border-radius:8px; transition:all .3s;">
+        <span class="en">Watch me change! / </span><span class="ar" lang="ar">شاهدني أتغيّر!</span>
+      </div>
+      <div class="controls">
+        <button class="btn"    type="button" data-cssdemo="green">🟢 <span class="en">Green background</span></button>
+        <button class="btn ghost" type="button" data-cssdemo="rounded">🔵 <span class="en">Round corners</span></button>
+        <button class="btn ghost" type="button" data-cssdemo="rotate">🌀 <span class="en">Rotate</span></button>
+        <button class="btn dark" type="button" data-cssdemo="reset">↩ <span class="en">Reset</span></button>
+      </div>
+    </div>
+
+    <div class="note ok">
+      <p class="en"><b>Three ways to write CSS:</b> (1) inline <kbd>style="…"</kbd> on an element,
+        (2) a <kbd>&lt;style&gt;</kbd> block in the <kbd>&lt;head&gt;</kbd> — like <b>this page does</b>,
+        (3) a separate <kbd>styles.css</kbd> file linked with <kbd>&lt;link rel="stylesheet" href="styles.css"&gt;</kbd>.</p>
+      <p class="ar" lang="ar"><b>ثلاث طرق لكتابة CSS:</b> (1) مضمّنة <kbd>style="…"</kbd> داخل العنصر،
+        (2) كتلة <kbd>&lt;style&gt;</kbd> داخل <kbd>&lt;head&gt;</kbd> — كما تفعل <b>هذه الصفحة</b>،
+        (3) ملف منفصل <kbd>styles.css</kbd> يُربط بـ <kbd>&lt;link rel="stylesheet" href="styles.css"&gt;</kbd>.</p>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       LESSON CSS 2 : COLORS & TEXT / الألوان والنصوص
+       ============================================================ -->
+  <section class="lesson" id="css-style">
+    <h2><span class="chip chip-css">CSS</span>
+      <span class="en">2 · Colors, fonts & text</span>
+      <span class="ar" lang="ar">2 · الألوان والخطوط والنصوص</span></h2>
+
+    <p class="en">The most common properties: <kbd>color</kbd> (text color), <kbd>background-color</kbd>,
+      <kbd>font-family</kbd> (which font), <kbd>font-size</kbd>, <kbd>font-weight</kbd> (boldness),
+      <kbd>text-align</kbd> and <kbd>border</kbd>.</p>
+    <p class="ar" lang="ar">أكثر الخصائص شيوعاً: <kbd>color</kbd> لون النص، <kbd>background-color</kbd> الخلفية،
+      <kbd>font-family</kbd> نوع الخط، <kbd>font-size</kbd> الحجم، <kbd>font-weight</kbd> السماكة،
+      <kbd>text-align</kbd> المحاذاة، و <kbd>border</kbd> الإطار.</p>
+
+    <div class="example">
+      <div class="example-head"><span class="en">Example — colors & text / مثال — الألوان والنصوص</span>
+        <button class="btn dark" type="button" data-try="css-color-demo">▶ <span class="en">Try it</span> <span class="ar" lang="ar">جرّب</span></button>
+      </div>
+      <pre class="code" data-code="css-color-demo"><code></code></pre>
+    </div>
+
+    <!-- LIVE COLOR MIXER / خلاط الألوان المباشر -->
+    <div class="demo">
+      <h3><span class="en">🎨 Live: the color mixer / خلّاط الألوان</span></h3>
+      <p class="en">Move the 3 sliders — JavaScript changes the <kbd>background-color</kbd> of the box.</p>
+      <p class="ar" lang="ar">حرّك المنزلقات الثلاثة — الجافاسكربت تغيّر <kbd>background-color</kbd> للصندوق.</p>
+      <div class="controls">
+        <label>R <input id="mr" type="range" min="0" max="255" value="4" data-color="mr"></label>
+        <label>G <input id="mg" type="range" min="0" max="255" value="170" data-color="mg"></label>
+        <label>B <input id="mb" type="range" min="0" max="255" value="109" data-color="mb"></label>
+      </div>
+      <div id="colorBox"></div>
+      <div class="readout" id="colorReadout">background-color: rgb(4, 170, 109);</div>
+    </div>
+
+    <h3><span class="en">Color formats / صيغ الألوان</span></h3>
+    <ul class="tight">
+      <li class="en"><kbd>named</kbd> — <kbd>red</kbd>, <kbd>green</kbd>… easy to remember.</li>
+      <li class="ar" lang="ar"><kbd>أسماء</kbd> — <kbd>red</kbd> أحمر، <kbd>green</kbd> أخضر… سهلة التذكّر.</li>
+      <li class="en"><kbd>HEX</kbd> — <kbd>#04aa6d</kbd>: two digits each for Red–Green–Blue (0–9, A–F). The green used on this page is <kbd>#04aa6d</kbd>.</li>
+      <li class="ar" lang="ar"><kbd>HEX</kbd> — <kbd>#04aa6d</kbd>: رقمين لكل لون من الأحمر–الأخضر–الأزرق (0–9, A–F). الأخضر المستخدم في هذه الصفحة هو <kbd>#04aa6d</kbd>.</li>
+      <li class="en"><kbd>rgb(r,g,b)</kbd> — numbers 0–255 per channel. Try <kbd>rgb(255, 0, 0)</kbd> = pure red!</li>
+      <li class="ar" lang="ar"><kbd>rgb(r,g,b)</kbd> — أرقام من 0 إلى 255 لكل قناة. جرّب <kbd>rgb(255, 0, 0)</kbd> = أحمر نقي!</li>
+    </ul>
+  </section>
+
+  <!-- ============================================================
+       LESSON CSS 3 : BOX MODEL / نموذج الصندوق
+       ============================================================ -->
+  <section class="lesson" id="css-box">
+    <h2><span class="chip chip-css">CSS</span>
+      <span class="en">3 · The Box Model — every element is a box</span>
+      <span class="ar" lang="ar">3 · نموذج الصندوق — كل عنصر هو صندوق</span></h2>
+
+    <p class="en">Every HTML element is a rectangle built from 4 layers, from inside out:</p>
+    <p class="ar" lang="ar">كل عنصر في HTML هو مستطيل مبني من 4 طبقات، من الداخل إلى الخارج:</p>
+    <ul class="tight">
+      <li class="en"><b>1. content</b> — the text or image.</li>
+      <li class="ar" lang="ar"><b>1. المحتوى Content</b> — النص أو الصورة.</li>
+      <li class="en"><b>2. padding</b> — space between content and border (inside the box).</li>
+      <li class="ar" lang="ar"><b>2. الحشوة Padding</b> — مسافة بين المحتوى والإطار (داخل الصندوق).</li>
+      <li class="en"><b>3. border</b> — the visible edge (can be 0 / invisible).</li>
+      <li class="ar" lang="ar"><b>3. الإطار Border</b> — الحافة المرئية (قد يكون 0 أي غير مرئي).</li>
+      <li class="en"><b>4. margin</b> — space outside the box, separating it from neighbours.</li>
+      <li class="ar" lang="ar"><b>4. الهامش Margin</b> — مسافة خارج الصندوق تفصله عن جيرانه.</li>
+    </ul>
+
+    <div class="example">
+      <div class="example-head"><span class="en">Example — padding, border, margin / مثال</span>
+        <button class="btn dark" type="button" data-try="box-demo">▶ <span class="en">Try it</span> <span class="ar" lang="ar">جرّب</span></button>
+      </div>
+      <pre class="code" data-code="box-demo"><code></code></pre>
+    </div>
+
+    <!-- LIVE BOX MODEL / تجربة نموذج الصندوق الحية -->
+    <div class="demo">
+      <h3><span class="en">🧱 Live: explore the box model / جرّب نموذج الصندوق مباشرة</span></h3>
+      <p class="en">Change the sliders below and watch the padding and margin grow.</p>
+      <p class="ar" lang="ar">غيّر المنزلقات وشاهد الحشوة والهامش يكبران.</p>
+      <div class="controls">
+        <label><span class="en">Padding</span> <input id="bxPadding" type="range" min="0" max="60" value="14"></label>
+        <label><span class="en">Margin</span> <input id="bxMargin" type="range" min="0" max="60" value="14"></label>
+      </div>
+      <div class="boxmodel-wrap">
+        <div id="bx">
+          <div id="bx-in">
+            <div id="bx-content"><span class="en">content</span><br><span class="ar" lang="ar">المحتوى</span></div>
+          </div>
+        </div>
+        <ul class="tight">
+          <li class="en"><span style="background:#1d9bf0;color:#fff;padding:0 .4rem;border-radius:4px;">blue</span> = content, the middle <span style="background:#a8e6cf;">green pad</span> = padding, the dark <span style="background:#4c9f70;color:#fff;padding:0 .3rem;border-radius:4px;">edge</span> = border, the dashed gray zone = margin.</li>
+          <li class="ar" lang="ar"><span style="background:#1d9bf0;color:#fff;padding:0 .4rem;border-radius:4px;">الأزرق</span> المحتوى، و<span style="background:#a8e6cf;">الخضرة الفاتحة</span> الحشوة، و<span style="background:#4c9f70;color:#fff;padding:0 .3rem;border-radius:4px;">الحافة الغامقة</span> الإطار، والمنطقة الرمادية المتقطعة هي الهامش.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       LESSON CSS 4 : FLEXBOX / التخطيط المرن
+       ============================================================ -->
+  <section class="lesson" id="css-flex">
+    <h2><span class="chip chip-css">CSS</span>
+      <span class="en">4 · Flexbox — arranging boxes in a row/column</span>
+      <span class="ar" lang="ar">4 · فليكس بوكس — ترتيب الصناديق في صف أو عمود</span></h2>
+
+    <p class="en">Put <kbd>display:flex</kbd> on a <b>container</b> and its direct children line up in a row.
+      Then <kbd>justify-content</kbd> controls the <i>main</i> axis and <kbd>align-items</kbd> the <i>cross</i> axis.</p>
+    <p class="ar" lang="ar">ضع <kbd>display:flex</kbd> على <b>الحاوية</b> وستصطف أبناؤها المباشرون في صف واحد.
+      ثم يتحكم <kbd>justify-content</kbd> في <i>المحور الرئيسي</i> و<kbd>align-items</kbd> في <i>المحور العمودي</i>.</p>
+
+    <div class="example">
+      <div class="example-head"><span class="en">Example — a flex row / مثال — صف مرن</span>
+        <button class="btn dark" type="button" data-try="flex-demo">▶ <span class="en">Try it</span> <span class="ar" lang="ar">جرّب</span></button>
+      </div>
+      <pre class="code" data-code="flex-demo"><code></code></pre>
+    </div>
+
+    <!-- LIVE FLEX DEMO / تجربة الفليكس الحية -->
+    <div class="demo">
+      <h3><span class="en">📐 Live: flex playground / ملعب الفليكس</span></h3>
+      <p class="en">Pick options — JavaScript re-writes <kbd>justify-content</kbd> and <kbd>align-items</kbd> on the container.</p>
+      <p class="ar" lang="ar">اختر خياراً — الجافاسكربت تعيد كتابة الخاصيتين على الحاوية مباشرة.</p>
+      <div class="controls">
+        <label><span class="en">Justify</span>
+          <select id="flxJustify">
+            <option value="flex-start">flex-start</option>
+            <option value="center" selected>center</option>
+            <option value="space-between">space-between</option>
+            <option value="space-around">space-around</option>
+            <option value="flex-end">flex-end</option>
+          </select>
+        </label>
+        <label><span class="en">Align</span>
+          <select id="flxAlign">
+            <option value="stretch" selected>stretch</option>
+            <option value="center">center</option>
+            <option value="flex-end">flex-end</option>
+            <option value="flex-start">flex-start</option>
+          </select>
+        </label>
+        <label><input id="flxWrap" type="checkbox"> <span class="en">wrap / التفاف</span></label>
+      </div>
+      <div class="flex-stage" id="flexStage"><div>1</div><div>2</div><div>3</div></div>
+      <div class="readout" id="flexReadout">display: flex; justify-content: center; align-items: stretch;</div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       LESSON JS 1 : WHAT IS JS? / ما هي الجافاسكربت؟
+       ============================================================ -->
+  <section class="lesson" id="js-intro">
+    <h2><span class="chip chip-js">JavaScript</span>
+      <span class="en">1 · What is JavaScript?</span>
+      <span class="ar" lang="ar">1 · ما هي الجافاسكربت؟</span></h2>
+
+    <p class="en"><b>JavaScript (JS)</b> is the only programming language that browsers understand natively.
+      It <i>reacts</i>: it listens for events (clicks, typing, loading) and changes the page as a result.
+      It does not need to be compiled — you write it, the browser runs it immediately.</p>
+    <p class="ar" lang="ar"><b>جافاسكربت (JS)</b> هي لغة البرمجة الوحيدة التي تفهمها المتصفحات أصلاً.
+      إنها <i>تتفاعل</i>: تستمع للأحداث (نقرات، كتابة، تحميل) وتغيّر الصفحة بناءً عليها.
+      لا تحتاج إلى تجميع — تكتبها ويشغّلها المتصفح فوراً.</p>
+
+    <h3><span class="en">Where is JS on THIS page? / أين الجافاسكربت في هذه الصفحة؟</span></h3>
+    <ul class="tight">
+      <li class="en">There is a <kbd>&lt;script&gt;…&lt;/script&gt;</kbd> block at the bottom, just before <kbd>&lt;/body&gt;</kbd>. Putting it last guarantees the HTML above is already loaded.</li>
+      <li class="ar" lang="ar">هناك كتلة <kbd>&lt;script&gt;…&lt;/script&gt;</kbd> في الأسفل قبل <kbd>&lt;/body&gt;</kbd> مباشرة، لضمان أن HTML أعلاه قد حُمّل بالفعل.</li>
+      <li class="en">Everything you <i>click</i> here that reacts — lessons, quiz, dark mode, the demos — is JavaScript.</li>
+      <li class="ar" lang="ar">كل ما <i>تضغط عليه</i> هنا فيتفاعل — الدروس، الاختبار، الوضع الليلي، والتجارب — هو جافاسكربت.</li>
+    </ul>
+
+    <div class="example">
+      <div class="example-head"><span class="en">The smallest JS program / أصغر برنامج جافاسكربت</span>
+        <button class="btn dark" type="button" data-try="js-intro-demo">▶ <span class="en">Try it</span> <span class="ar" lang="ar">جرّب</span></button>
+      </div>
+      <pre class="code" data-code="js-intro-demo"><code></code></pre>
+    </div>
+
+    <div class="note warn">
+      <p class="en"><b>Careful —</b> the <kbd>&lt;button onclick="…"&gt;</kbd> trick runs code directly from the HTML.
+        Cleaner and more powerful is <b>addEventListener</b>, taught on the next page.</p>
+      <p class="ar" lang="ar"><b>انتبه —</b> خدعة <kbd>&lt;button onclick="…"&gt;</kbd> تشغّل الكود مباشرة من HTML.
+        الأفضل والأقوى هو <b>addEventListener</b> كما سيُشرح في الصفحة التالية.</p>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       LESSON JS 2 : EVENTS & FUNCTIONS / الأحداث والدوال
+       ============================================================ -->
+  <section class="lesson" id="js-events">
+    <h2><span class="chip chip-js">JavaScript</span>
+      <span class="en">2 · Events & functions — making things happen</span>
+      <span class="ar" lang="ar">2 · الأحداث والدوال — جعل الأشياء تحدث</span></h2>
+
+    <p class="en">An <b>event</b> is something the user does (click, type…) or the page does (load). A
+      <b>function</b> is a named block of code we can run whenever we want. We connect them with
+      <kbd>addEventListener</kbd>:</p>
+    <p class="ar" lang="ar"><b>الحدث (Event)</b> هو شيء يفعله المستخدم (نقرة، كتابة…) أو الصفحة (تحميل).
+      و<b>الدالة (Function)</b> كتلة كود مسماة نشغّلها متى أردنا. نربط بينهما بـ <kbd>addEventListener</kbd>:</p>
+
+    <div class="example">
+      <div class="example-head"><span class="en">Example — count every click / مثال — عدّ كل نقرة</span>
+        <button class="btn dark" type="button" data-try="js-event-demo">▶ <span class="en">Try it</span> <span class="ar" lang="ar">جرّب</span></button>
+      </div>
+      <pre class="code" data-code="js-event-demo"><code></code></pre>
+    </div>
+
+    <!-- LIVE COUNTER / العداد الحي -->
+    <div class="demo">
+      <h3><span class="en">🔢 Live: the click counter — press the button and watch the number</span>
+        <span class="ar" lang="ar">🔢 عداد النقرات — اضغط الزر وشاهد العدد</span></h3>
+      <p class="en">One <b>variable</b> stores the number, one function reads it (+1) and writes it back.</p>
+      <p class="ar" lang="ar"><b>متغيّر واحد</b> يخزّن العدد، ودالة تقرأه (تضيف 1) وتعيد كتابته.</p>
+      <div style="text-align:center;">
+        <div id="counterNum">0</div>
+        <button class="btn" id="counterBtn" type="button">+1 <span class="en">Click me!</span> <span class="ar" lang="ar">اضغطني!</span></button>
+        <button class="btn ghost" id="counterReset" type="button">↩ reset / تصفير</button>
+      </div>
+    </div>
+
+    <div class="note ok">
+      <p class="en"><b>Other common events:</b> <kbd>mouseover</kbd>, <kbd>mouseout</kbd>, <kbd>keydown</kbd>,
+        <kbd>input</kbd>, <kbd>change</kbd>, <kbd>submit</kbd>, <kbd>scroll</kbd>… This page uses <kbd>click</kbd>,
+        <kbd>input</kbd>, <kbd>change</kbd>, <kbd>keyup</kbd> and <kbd>DOMContentLoaded</kbd>.</p>
+      <p class="ar" lang="ar"><b>أحداث شائعة أخرى:</b> <kbd>mouseover</kbd> مرور الفأرة، <kbd>mouseout</kbd> خروجها،
+        <kbd>keydown</kbd> ضغطة زر، <kbd>input</kbd> إدخال، <kbd>change</kbd> تغيير، <kbd>submit</kbd> إرسال، <kbd>scroll</kbd> تمرير…
+        هذه الصفحة تستخدم <kbd>click</kbd> و<kbd>input</kbd> و<kbd>change</kbd> و<kbd>keyup</kbd> و<kbd>DOMContentLoaded</kbd>.</p>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       LESSON JS 3 : THE DOM / نموذج المستند
+       ============================================================ -->
+  <section class="lesson" id="js-dom">
+    <h2><span class="chip chip-js">JavaScript</span>
+      <span class="en">3 · The DOM — the bridge between JS and HTML</span>
+      <span class="ar" lang="ar">3 · نموذج المستند DOM — الجسر بين الجافاسكربت و HTML</span></h2>
+
+    <p class="en"><b>DOM = Document Object Model.</b> The browser turns your HTML into a tree of objects and
+      JavaScript uses <b>methods</b> to find and change them. The 3 tools you need:</p>
+    <p class="ar" lang="ar"><b>DOM = نموذج كائن المستند.</b> يحوّل المتصفح كود HTML إلى شجرة كائنات، وتستخدم
+      الجافاسكربت <b>دوال (Methods)</b> لإيجادها وتغييرها. الأدوات الثلاث التي تحتاجها:</p>
+    <ul class="tight">
+      <li class="en"><kbd>document.getElementById('id')</kbd> — find ONE element by its <kbd>id</kbd>.</li>
+      <li class="ar" lang="ar"><kbd>document.getElementById('id')</kbd> — إيجاد عنصر واحد بواسطة <kbd>id</kbd>.</li>
+      <li class="en"><kbd>document.querySelector('.class')</kbd> — find the FIRST element matching a CSS selector.</li>
+      <li class="ar" lang="ar"><kbd>document.querySelector('.class')</kbd> — إيجاد أول عنصر يطابق محدد CSS.</li>
+      <li class="en"><kbd>element.innerHTML = '…'</kbd> and <kbd>element.textContent = '…'</kbd> — change its content.</li>
+      <li class="ar" lang="ar"><kbd>element.innerHTML = '…'</kbd> و <kbd>element.textContent = '…'</kbd> — تغيير محتواه.</li>
+    </ul>
+
+    <div class="example">
+      <div class="example-head"><span class="en">Example — write text into an element / مثال — كتابة نص داخل عنصر</span>
+        <button class="btn dark" type="button" data-try="js-dom-demo">▶ <span class="en">Try it</span> <span class="ar" lang="ar">جرّب</span></button>
+      </div>
+      <pre class="code" data-code="js-dom-demo"><code></code></pre>
+    </div>
+
+    <!-- LIVE NAME + LIGHTS DEMO / تجربة الاسم والأضواء -->
+    <div class="demo">
+      <h3><span class="en">👋 Live: read an input, then do something / اقرأ الإدخال ثم نفّذ</span></h3>
+      <p class="en">Type in the box and press the button. JavaScript takes the input <b>value</b>, joins it with text,
+        and puts the result into a paragraph. Then press the lights below — it swaps an <kbd>image</kbd> using <kbd>src</kbd>.</p>
+      <p class="ar" lang="ar">اكتب في المربع واضغط الزر. تأخذ الجافاسكربت <b>قيمة</b> الإدخال، تضيفها إلى نص، وتضع النتيجة في فقرة.
+        ثم اضغط الأضواء بالأسفل — تستبدل <kbd>صورة</kbd> عبر خاصية <kbd>src</kbd>.</p>
+
+      <div class="controls">
+        <input id="nameInput" type="text" placeholder="Type your name / اكتب اسمك">
+        <button class="btn" id="nameBtn" type="button"><span class="en">Say hello</span> <span class="ar" lang="ar">قل مرحباً</span></button>
+      </div>
+      <p style="font-size:1.2rem; font-weight:700;" id="greeting">…</p>
+
+      <div class="controls">
+        <button class="btn dark" id="lightOn" type="button">💡 <span class="en">Turn on</span> <span class="ar" lang="ar">أشعِل</span></button>
+        <button class="btn ghost" id="lightOff" type="button">🌑 <span class="en">Turn off</span> <span class="ar" lang="ar">أطفئ</span></button>
+      </div>
+      <img id="bulb" src="https://www.w3schools.com/js/pic_bulboff.gif" alt="bulb"
+           style="width:80px; height:auto; background:#fff; border-radius:8px; padding:4px;">
+    </div>
+    <p class="small"><span class="en">(The lightbulb image is loaded from the W3Schools site, so it needs internet in the full page.</span>
+      <span class="ar" lang="ar">(صورة المصباح تُحمَّل من موقع W3Schools، لذا تحتاج اتصالاً بالإنترنت في الصفحة الكاملة.)</span></p>
+  </section>
+
+  <!-- ============================================================
+       LESSON : HOW THE TRY-IT EDITOR WORKS / كيف يعمل المحرّر؟
+       ============================================================ -->
+  <section class="lesson" id="tryit-page">
+    <h2><span class="chip chip-site">FEATURE</span>
+      <span class="en">How the Try-it-Yourself editor works</span>
+      <span class="ar" lang="ar">كيف يعمل محرّر "جرّب بنفسك"؟</span></h2>
+
+    <p class="en">Every code example above has a green <b>▶ Try it</b> button. Press it and a full-screen editor opens:
+      the code on the left (you can change it!), a live preview on the right, and 3 buttons on top —
+      <b>Run ▶</b> reloads the preview, <b>Reset</b> brings back the original code, <b>Exit ✕</b> closes.</p>
+    <p class="ar" lang="ar">كل مثال في الأعلى له زر أخضر <b>▶ جرّب</b>. اضغطه فيفتح محرّر بملء الشاشة:
+      الكود على اليسار (يمكنك تعديله!) ومعاينة حيّة على اليمين، وفوقهما 3 أزرار — <b>تشغيل ▶</b> يعيد تحميل
+      المعاينة، و<b>إعادة</b> يعيد الكود الأصلي، و<b>خروج ✕</b> للإغلاق.</p>
+
+    <h3><span class="en">So, how does it actually work? / إذن كيف يعمل فعلياً؟</span></h3>
+    <ul class="tight">
+      <li class="en">Every example panel has a hidden attribute <kbd>data-code="some-id"</kbd> pointing to an HTML string stored in JavaScript.</li>
+      <li class="ar" lang="ar">كل لوحة مثال لها خاصية مخفية <kbd>data-code="some-id"</kbd> تشير إلى نص HTML مخزَّن في الجافاسكربت.</li>
+      <li class="en">The <kbd>&lt;pre&gt;</kbd> element is filled by JavaScript and <b>colored</b> by a tiny highlighter that walks through the code, tags it, and wraps keywords in colored <kbd>&lt;span&gt;</kbd>s.</li>
+      <li class="ar" lang="ar">يملأ الجافاسكربت وسم <kbd>&lt;pre&gt;</kbd> و<b>يُلَوّنه</b> عبر مُلوِّن صغير يمر على الكود ويغلّف الكلمات المفتاحية بوسوم <kbd>&lt;span&gt;</kbd> ملوّنة.</li>
+      <li class="en">To <b>run</b> it, JavaScript creates an <kbd>&lt;iframe&gt;</kbd> (an independent mini-page) and writes the code into it with <kbd>iframe.contentDocument.write(code)</kbd>.</li>
+      <li class="ar" lang="ar">ل<b>التشغيل</b>، تنشئ الجافاسكربت <kbd>&lt;iframe&gt;</kbd> (صفحة مصغّرة مستقلة) وتكتب الكود داخلها بـ <kbd>iframe.contentDocument.write(code)</kbd>.</li>
+      <li class="en"><b>Reset</b> just copies the original string again. <b>Dirty red dot</b> appears once you modify the code. No server involved — everything happens in your browser.</li>
+      <li class="ar" lang="ar"><b>إعادة</b> تنسخ النص الأصلي فقط. <b>النقطة الحمراء</b> تظهر عندما تعدّل الكود. لا يوجد خادم — كل شيء يحدث في متصفحك.</li>
+    </ul>
+
+    <div class="demo" style="border-style:solid;">
+      <p class="en"><b>Try this trick now:</b> open any example and press <b>Run ▶</b> after changing a color. Then press
+        <b>Ctrl+Shift+I</b> inside the preview iframe to inspect its own code.</p>
+      <p class="ar" lang="ar"><b>جرّب هذه الخدعة الآن:</b> افتح أي مثال واضغط <b>تشغيل ▶</b> بعد تغيير لون ما. ثم اضغط
+        <b>Ctrl+Shift+I</b> داخل المعاينة لفحص كودها الخاص.</p>
+      <button class="btn dark" type="button" data-try="skel-doc">🧪 <span class="en">Open the editor now</span> <span class="ar" lang="ar">افتح المحرّر الآن</span></button>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       LESSON : QUIZ / الاختبار
+       ============================================================ -->
+  <section class="lesson" id="quiz">
+    <h2><span class="chip chip-site">QUIZ</span>
+      <span class="en">Quiz — 6 quick questions / اختبار سريع من 6 أسئلة</span></h2>
+    <p class="en">Click an answer — you get instant feedback and 1 point for each correct one.</p>
+    <p class="ar" lang="ar">اضغط على إجابة — ستحصل على تغذية راجعة فوراً ونقطة واحدة لكل إجابة صحيحة.</p>
+
+    <div id="quizArea">
+      <!-- quiz questions are generated here by JavaScript (keeps this HTML short)
+           تُنشأ الأسئلة هنا بواسطة الجافاسكربت (لإبقاء هذا الكود مختصراً) -->
+    </div>
+    <div class="note ok" id="quizResult" style="display:none;">
+      <p id="quizScore"></p>
+      <button class="btn" id="quizRetry" type="button"><span class="en">Retry / أعد المحاولة</span></button>
+    </div>
+  </section>
+
+</main><!-- /#main -->
+
+<!-- ============================================================
+     PREV / NEXT button strip (after each lesson — JS fills text)
+     شريط السابق/التالي (يملؤه الجافاسكربت بعد كل درس)
+     ============================================================ -->
+<div id="lessonfoots"></div>
+
+<!-- ============================================================
+     FOOTER / التذييل
+     ============================================================ -->
+<footer class="site">
+  <p class="en">Made for learning — HTML · CSS · JavaScript only. Press <kbd>Ctrl+Shift+I</kbd> and read the real code behind every feature. | WebTutor, Cairo 🇪🇬</p>
+  <p class="ar" lang="ar">صُنعت للتعلّم — HTML و CSS و JavaScript فقط. اضغط <kbd>Ctrl+Shift+I</kbd> واقرأ الكود الحقيقي خلف كل خاصية.</p>
+</footer>
+
+<!-- ============================================================
+     THE FULL-SCREEN TRY-IT EDITOR / محرّر "جرّب بنفسك"
+     Fixed overlay, hidden until a "Try it" button is pressed.
+     ============================================================ -->
+<div class="editor" id="editor">
+  <div class="ed-top">
+    <span class="title">▶ Try it Yourself / جرّب بنفسك</span>
+    <select id="edExamples" aria-label="choose example"></select>
+    <span id="edDirty" title="unsaved change / تغيير غير محفوظ"></span>
+    <span class="grow"></span>
+    <button class="btn" id="edRun">Run ▶ <span class="ar" lang="ar">تشغيل</span></button>
+    <button class="btn ghost" id="edReset">↩ <span class="en">Reset</span> <span class="ar" lang="ar">إعادة</span></button>
+    <button class="btn dark" id="edClose">✕ <span class="en">Exit</span> <span class="ar" lang="ar">خروج</span></button>
+  </div>
+  <div class="ed-grid">
+    <textarea id="edCode" spellcheck="false" aria-label="code editor"></textarea>
+    <iframe class="preview" id="edPreview" title="live preview"></iframe>
+  </div>
+</div>
+
+<!-- ============================================================
+     THE JAVASCRIPT (see part 5 of the page — the big comment above
+     the <style> explains how the 3 languages share this file)
+     الكود الخاص بلغة الجافاسكربت في الأسفل تماماً كما نراه هنا
+     ============================================================ -->
+<script>
+/* ============================================================
+   ===  THE JAVASCRIPT — explained section by section        ===
+   ===  جافاسكربت — مشروحة قطعة قطعة                        ===
+   ============================================================
+   This script powers the whole page:
+   1. EXAMPLES      — a library holding the code of every example
+   2. HIGHLIGHTER   — paints HTML/CSS/JS text in colors
+   3. LESSON ENGINE — opens lessons, marks the sidebar/nav active
+   4. NAV + SEARCH  — menu button, dark mode, search
+   5. DEMOS         — CSS demo, color mixer, box model, flex,
+                      click counter, greeting + lightbulb
+   6. QUIZ          — questions, answers, score
+   7. TRY-IT EDITOR — full-screen run-your-own-code editor
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   1) EXAMPLES — the code behind every "Try it" panel.
+   Each key points to a string containing a FULL, standalone web
+   page (it has its own <html>, <style>, <script>…) because the
+   editor runs it inside a separate iframe.
+
+   ملاحظة عربية: كل مثال هنا هو صفحة ويب كاملة ومستقلة، لأن
+   المحرّر يشغّلها داخل إطار منفصل (iframe).
+   ------------------------------------------------------------ */
+const EXAMPLES = {
+
+  /* --- Lesson 0 : the basic skeleton / الهيكل الأساسي --- */
+  'skel-doc': `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My first page</title>
+</head>
+<body>
+
+  <h1>My First Heading</h1>
+  <p>My first paragraph.</p>
+
+</body>
+</html>`,
+
+  /* Skeleton with Arabic notes / الهيكل مع شروح عربية */
+  'skel-notes': `<!DOCTYPE html>   <!-- tells the browser: this is HTML5 / إعلان أن المستند HTML5 -->
+<html>           <!-- root element: wraps everything / الجذر الذي يغلّف كل شيء -->
+<head>           <!-- invisible settings / إعدادات غير مرئية -->
+  <meta charset="UTF-8">  <!-- character set: supports Arabic + all / ترميز يدعم العربية -->
+  <title>My page</title>  <!-- tab title / عنوان التبويب -->
+</head>
+<body>           <!-- everything the visitor SEES / كل ما يراه الزائر -->
+
+  <h1>Hello! / مرحباً</h1>  <!-- biggest heading / أكبر عنوان -->
+  <p>Welcome / أهلاً بك</p> <!-- paragraph / فقرة -->
+
+</body>
+</html>`,
+
+  /* --- Lesson HTML 2 : text --- */
+  'text-demo': `<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>Headings demo</title></head>
+<body>
+
+  <h1>Heading 1 — the biggest / الأكبر</h1>
+  <h2>Heading 2</h2>
+  <h3>Heading 3</h3>
+
+  <p>This is a paragraph with <strong>important</strong> and
+     <em>emphasised</em> words.</p>
+
+  <p>Two <br> lines <br> with breaks.</p>
+  <hr>
+  <p>Above is a horizontal rule / أعلاه خط أفقي.</p>
+
+</body>
+</html>`,
+
+  /* --- Lesson HTML 3 : media --- */
+  'media-demo': `<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>Links & images</title></head>
+<body>
+
+  <!-- LINK / رابط -->
+  <a href="https://www.w3schools.com" target="_blank">
+    W3Schools (opens in a new tab / يفتح في تبويب جديد)
+  </a>
+
+  <!-- IMAGE / صورة -->
+  <img src="https://www.w3schools.com/w3images/fjords.jpg"
+       alt="Fjord mountains in Norway"
+       width="250">
+
+  <!-- LISTS / قوائم -->
+  <ul>
+    <li>Unordered item / عنصر نقطي</li>
+    <li>Second item</li>
+  </ul>
+  <ol>
+    <li>First step / الخطوة الأولى</li>
+    <li>Second step</li>
+  </ol>
+
+</body>
+</html>`,
+
+  /* --- Lesson HTML 4 : form --- */
+  'form-demo': `<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>Form demo</title></head>
+<body>
+
+  <form>
+    <label for="fname">First name / الاسم الأول:</label><br>
+    <input type="text" id="fname" placeholder="Your name">
+
+    <br><br>
+
+    <label for="mail">Email / البريد:</label><br>
+    <input type="email" id="mail">
+
+    <br><br>
+
+    <label for="country">Country / الدولة:</label>
+    <select id="country">
+      <option>Egypt / مصر</option>
+      <option>Other / أخرى</option>
+    </select>
+
+    <br><br>
+    <button type="submit">Send / إرسال</button>
+  </form>
+
+</body>
+</html>`,
+
+  /* --- Lesson CSS 1 : anatomy --- */
+  'css-anatomy': `selector { property: value; }
+محدّد    { خاصية : قيمة; }
+
+h1 { color: blue; }
+
+/* selector = WHICH element(s)   / ما هي العناصر المستهدفة؟ */
+/* property = WHAT to change     / ماذا نغيّر؟              */
+/* value    = TO what new value  / إلى أي قيمة؟             */
+
+h1      { color: blue;  }  /* text color / لون النص */
+h1      { color: blue;  }  /* written on ONE line or several — same thing */
+p, li   { font-size: 16px; }  /* comma = multiple selectors / فاصلة = عدة محددات */
+#intro  { background: yellow; }  /* #id selects id="intro" */
+.btn    { border-radius: 6px; }  /* .class selects class="btn" */`,
+
+  /* --- Lesson CSS 2 : colors & text --- */
+  'css-color-demo': `<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>Colors demo</title>
+<style>
+  body { font-family: Arial, sans-serif; }
+
+  h1 {
+    color: #04aa6d;        /* HEX color / لون بنظام HEX */
+    text-align: center;    /* center the text / توسيط النص */
+  }
+
+  p {
+    color: rgb(50, 50, 50); /* RGB color */
+    background-color: #f1f1f1; /* light gray background / خلفية رمادية */
+    padding: 12px;            /* space inside / حشوة داخلية */
+    border-left: 5px solid #04aa6d;
+    font-size: 18px;
+  }
+
+  .big  { font-weight: bold; }   /* bold / عريض */
+  .note { text-transform: uppercase; } /* UPPERCASE letters / أحرف كبيرة */
+</style>
+</head>
+<body>
+  <h1>Colored heading / عنوان ملوّن</h1>
+  <p>I am a paragraph with padding and a green left border.</p>
+  <p class="big">Bold text</p>
+  <p class="note">uppercase text / نص بأحرف كبيرة</p>
+</body>
+</html>`,
+
+  /* --- Lesson CSS 3 : box model --- */
+  'box-demo': `<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>Box model demo</title>
+<style>
+  div {
+    background: lightblue;
+    width: 220px;
+    border: 10px solid navy;   /* border / الإطار */
+    padding: 20px;             /* inside space / الحشوة */
+    margin: 25px;              /* outside space / الهامش */
+  }
+</style>
+</head>
+<body>
+  <div>content / المحتوى</div>
+  <p>The box above is really 220 + 20+20 (padding) + 10+10 (border) pixels wide.</p>
+</body>
+</html>`,
+
+  /* --- Lesson CSS 4 : flexbox --- */
+  'flex-demo': `<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>Flexbox demo</title>
+<style>
+  .container {
+    display: flex;                 /* children in a ROW / أبناء في صف */
+    justify-content: space-between;/* spread / توزيع المسافات */
+    align-items: center;           /* center vertically / توسيط عمودي */
+    height: 150px;
+    border: 2px solid #04aa6d;
+  }
+  .container div {
+    background: #04aa6d; color: white;
+    padding: 20px; margin: 5px; border-radius: 8px;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div>1</div>
+    <div>2</div>
+    <div>3</div>
+  </div>
+</body>
+</html>`,
+
+  /* --- Lesson JS 1 : intro --- */
+  'js-intro-demo': `<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>JS intro</title></head>
+<body>
+
+  <h1>What does JavaScript do?</h1>
+
+  <button onclick="document.getElementById('demo').innerHTML='Hello from JS! / مرحباً من الجافاسكربت'">
+    Click me / اضغطني
+  </button>
+
+  <p id="demo">I will change / سأتغيّر</p>
+
+</body>
+</html>`,
+
+  /* --- Lesson JS 2 : event + function --- */
+  'js-event-demo': `<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>Click counter</title></head>
+<body>
+
+  <h1>JavaScript click counter / عدّاد النقرات</h1>
+
+  <p id="num">0</p>
+  <button id="btn">+1 Click! / اضغط</button>
+
+<script>
+  let count = 0;                 // 1) a variable / متغيّر
+
+  function addOne() {            // 2) a function / دالة
+    count = count + 1;           //    count increases / يزيد
+    document.getElementById('num').innerHTML = count; // show it
+  }
+
+  // 3) connect event to function / ربط الحدث بالدالة
+  document.getElementById('btn').addEventListener('click', addOne);
+<\/script>
+</body>
+</html>`,
+
+  /* --- Lesson JS 3 : DOM read input --- */
+  'js-dom-demo': `<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>DOM demo</title></head>
+<body>
+
+  <h1>Read an input, show a greeting</h1>
+
+  <input id="name" placeholder="your name / اسمك">
+  <button id="go">Say hi / سلّم</button>
+
+  <p id="out">—</p>
+
+<script>
+  // 1) find the button / إيجاد الزر
+  const btn = document.getElementById('go');
+
+  // 2) listen for a click / الاستماع للنقرة
+  btn.addEventListener('click', function () {
+
+    // 3) read the input VALUE / قراءة قيمة الإدخال
+    const name = document.getElementById('name').value;
+
+    // 4) build a message and put it into <p id="out">
+    document.getElementById('out').innerHTML = 'Hello, ' + name + '! / مرحباً ' + name;
+  });
+<\/script>
+</body>
+</html>`
+};
+
+/* ------------------------------------------------------------
+   2) THE HIGHLIGHTER — gives the code its colors.
+   It runs the code text through a big list of rules. Each rule
+   is a Regular Expression (a "pattern" the text must match).
+   Rules that win FIRST have priority (they run in order).
+
+   الملوِّن: يمر على نص الكود بقائمة قواعد (نمط بحث RegEx).
+   القواعد المكتوبة أولاً لها الأولوية.
+   ------------------------------------------------------------ */
+function highlight(code) {
+  // R = list of rules: each has a pattern (re) and a CSS class (c)
+  const R = [
+    // NOTE: code is HTML-escaped first, so "<!--" became "&lt;!--"
+    // إشارة: الكود نُصِّي أولاً، فأصبح <!-- هو &lt;!--
+    { re: /(&lt;!--|<!--)[\s\S]*?(--&gt;|-->)/g,  c: 'c-c' }, // HTML comments / تعليقات HTML
+    { re: /\/\*[\s\S]*?\*\//g,                    c: 'c-c' }, // CSS block comments / تعليقات CSS
+    { re: /\/\/[^\n]*/g,                          c: 'c-c' }, // JS line comments / تعليق سطر
+    { re: /"[^"\n]*"|'[^'\n]*'/g,                 c: 'c-s' }, // strings / النصوص
+    { re: /(&lt;\/?)([a-zA-Z][a-zA-Z0-9-]*)/g,    c: 'c-t' }, // HTML tag names / أسماء الوسوم
+    { re: /([a-zA-Z-]+)(=)(["'])/g,               c: 'c-a' }, // attributes / أسماء الخصائص
+    { re: /\b(const|let|var|function|if|else|return|new|document|window)\b/g, c: 'c-k' },
+    { re: /\b([a-zA-Z_$][\w$]*)(?=\()/g,          c: 'c-f' }, // function calls / استدعاءات دوال
+    { re: /\b([0-9]+)\b/g,                        c: 'c-n' }, // numbers / أرقام
+  ];
+  let out = escapeHtml(code);                     // escape first!
+  for (const rule of R) {
+    out = out.replace(rule.re, (m) => '<span class="' + rule.c + '">' + m + '</span>');
+  }
+  return out;
+}
+
+/* Escape <, > and & so code is shown, not executed.
+   نستبدل الرموز الخاصة حتى يظهر الكود نصاً ولا يُنفَّذ */
+function escapeHtml(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+/* Fill every <pre data-code="..."> element with its stored example
+   يملأ كل وسم <pre> بمثال مخزّن */
+function paintAllCode() {
+  document.querySelectorAll('pre[data-code]').forEach((pre) => {
+    const key = pre.getAttribute('data-code');
+    if (EXAMPLES[key]) pre.innerHTML = highlight(EXAMPLES[key]);
+  });
+}
+
+/* ------------------------------------------------------------
+   3) THE LESSON ENGINE — open one lesson, close the others.
+   Every lesson is a <section class="lesson" id="...">. We hide
+   them ALL, then show only the one whose id == name. We also
+   mark the matching sidebar & top-nav links as "active".
+
+   محرك الدروس: يخفي كل الدروس ثم يعرض فقط الدرس المطلوب،
+   ويعلّم الرابط المطابق في القوائم.
+   ------------------------------------------------------------ */
+function openLesson(name) {
+  document.querySelectorAll('section.lesson').forEach((sec) => sec.classList.remove('open'));
+  const target = document.getElementById(name);
+  if (!target) return;                 // nothing found — stop / لم يوجد الدرس
+  target.classList.add('open');
+
+  document.querySelectorAll('.sidenav a').forEach((a) =>
+    a.classList.toggle('active', a.dataset.s === name));
+  document.querySelectorAll('.nav-pill').forEach((a) =>
+    a.classList.toggle('active', a.dataset.go === name));
+
+  buildLessonFoot(name);               // prev / next buttons
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* go() is what every lesson link calls (it is a global function).
+   We return false so the href="#" does nothing extra.
+   الدالة go() هي التي يستدعيها كل رابط درس */
+function go(name) {
+  openLesson(name);
+  closeSidebarOnMobile();
+  return false;
+}
+
+/* Previous / next strip under each lesson.
+   Write a small "◀ Previous · Lesson · Next ▶" row at the bottom
+   of the CURRENT lesson so you can walk through the course.
+   شريط السابق/التالي أسفل الدرس الحالي */
+const ORDER = ['how', 'structure', 'text', 'media', 'forms',
+               'css-intro', 'css-style', 'css-box', 'css-flex',
+               'js-intro', 'js-events', 'js-dom',
+               'tryit-page', 'quiz'];
+
+function buildLessonFoot(name) {
+  const foots = document.getElementById('lessonfoots');
+  foots.innerHTML = '';
+  const idx = ORDER.indexOf(name);
+  if (idx < 0) return;
+
+  const strip = document.createElement('div');
+  strip.className = 'lessonfoot';
+  const prevName = ORDER[idx - 1];
+  const nextName = ORDER[idx + 1];
+  strip.innerHTML =
+    (prevName
+      ? '<button class="btn ghost" onclick="go(\'' + prevName + '\')">◀ <span class="en">Previous</span> <span class="ar" lang="ar">السابق</span></button>'
+      : '<span class="spacer"></span>') +
+    '<span class="small" style="align-self:center;">Lesson ' + (idx + 1) + ' / ' + ORDER.length + ' — <span class="ar" lang="ar">الدرس</span></span>' +
+    (nextName
+      ? '<button class="btn" onclick="go(\'' + nextName + '\')"><span class="en">Next ▶</span> <span class="ar" lang="ar">التالي ▶</span></button>'
+      : '<span class="spacer"></span>');
+  foots.appendChild(strip);
+}
+/* ------------------------------------------------------------
+   4) NAVIGATION TOOLS — burger, dark mode, search
+   أدوات التنقل: زر القائمة، الوضع الليلي، البحث
+   ------------------------------------------------------------ */
+
+/* --- Hamburger: slide the sidebar in/out (mobile) ---
+   زر القائمة: يفتح ويغلق القائمة الجانبية على الجوال */
+function closeSidebarOnMobile() {
+  const nav = document.getElementById('sidenav');
+  if (window.innerWidth <= 860) nav.classList.remove('open');
+}
+document.getElementById('burger').addEventListener('click', () => {
+  document.getElementById('sidenav').classList.toggle('open');
+});
+
+/* --- Clicking a lesson link on mobile also closes the menu ---
+   عند اختيار درس من القائمة على الجوال نغلقها تلقائياً */
+document.getElementById('sidenav').addEventListener('click', (e) => {
+  if (e.target.tagName === 'A') closeSidebarOnMobile();
+});
+
+/* --- Dark mode: swap the whole palette ---
+   الوضع الليلي: نبدّل كل الألوان عبر خاصية data-theme.
+   The browser remembers your choice with localStorage. */
+function setTheme(dark) {
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+  document.getElementById('themeBtn').textContent = dark ? '☀️' : '🌙';
+  try { localStorage.setItem('webTutorTheme', dark ? 'dark' : 'light'); } catch (e) {}
+}
+document.getElementById('themeBtn').addEventListener('click', () => {
+  const dark = document.documentElement.getAttribute('data-theme') !== 'dark';
+  setTheme(dark);
+});
+
+/* Load saved theme on startup / تحميل السمة المحفوظة عند البداية */
+(function loadTheme() {
+  let saved = null;
+  try { saved = localStorage.getItem('webTutorTheme'); } catch (e) {}
+  if (saved === 'dark' ||
+     (saved === null && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    setTheme(true);
+  } else {
+    setTheme(false);
+  }
+})();
+
+/* --- Search: filter the sidebar lesson list ---
+   البحث: يخفي الدروس التي لا تحتوي على النص المكتوب.
+   (كل رابط قائمة يحمل اسم الدروس داخل نصه) */
+document.getElementById('searchBox').addEventListener('input', (e) => {
+  const q = e.target.value.trim().toLowerCase();
+  document.querySelectorAll('.sidenav a').forEach((a) => {
+    a.style.display = a.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+});
+
+/* ------------------------------------------------------------
+   5) THE LIVE DEMOS (each one is a small lesson by itself)
+   التجارب الحية — كل واحدة درس مصغّر
+   ------------------------------------------------------------ */
+
+/* --- CSS demo: buttons change a box's style / أزرار تغيّر تنسيق صندوق --- */
+document.querySelectorAll('[data-cssdemo]').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    const el = document.getElementById('cssDemoTarget');
+    const action = btn.getAttribute('data-cssdemo');
+    if (action === 'green')  el.style.background = '#b8e6cf';
+    if (action === 'rounded'){ el.style.borderRadius = '40px'; }
+    if (action === 'rotate'){ el.style.transform = 'rotate(3deg)'; }
+    if (action === 'reset') {
+      el.style.background = '#eef';
+      el.style.borderRadius = '8px';
+      el.style.transform = 'none';
+    }
+  });
+});
+
+/* --- Color mixer / خلّاط الألوان --- */
+function colorMixer() {
+  const r = document.getElementById('mr').value;
+  const g = document.getElementById('mg').value;
+  const b = document.getElementById('mb').value;
+  const color = 'rgb(' + r + ', ' + g + ', ' + b + ')';
+  document.getElementById('colorBox').style.backgroundColor = color;
+  document.getElementById('colorReadout').textContent =
+    'background-color: ' + color + ';';
+}
+['mr', 'mg', 'mb'].forEach((id) =>
+  document.getElementById(id).addEventListener('input', colorMixer));
+
+/* --- Box model explorer / مستكشف نموذج الصندوق --- */
+function boxModel() {
+  const p = document.getElementById('bxPadding').value;
+  const m = document.getElementById('bxMargin').value;
+  document.getElementById('bx-in').style.padding = p + 'px'; // padding layer
+  document.getElementById('bx').style.padding = m + 'px';    // margin layer
+}
+['bxPadding', 'bxMargin'].forEach((id) =>
+  document.getElementById(id).addEventListener('input', boxModel));
+
+/* --- Flexbox playground / ملعب فليكس --- */
+function flexUpdate() {
+  const stage = document.getElementById('flexStage');
+  stage.style.justifyContent = document.getElementById('flxJustify').value;
+  stage.style.alignItems    = document.getElementById('flxAlign').value;
+  stage.style.flexWrap      = document.getElementById('flxWrap').checked ? 'wrap' : 'nowrap';
+  document.getElementById('flexReadout').textContent =
+    'display: flex; justify-content: ' + stage.style.justifyContent +
+    '; align-items: ' + stage.style.alignItems + '; flex-wrap: ' + stage.style.flexWrap + ';';
+}
+['flxJustify', 'flxAlign'].forEach((id) =>
+  document.getElementById(id).addEventListener('change', flexUpdate));
+document.getElementById('flxWrap').addEventListener('change', flexUpdate);
+
+/* --- Click counter (live demo) / عداد النقرات (التجربة الحية) ---
+   The counter uses "state": a number saved in a variable that
+   changes each click and is written back onto the page.
+   العداد يستخدم "حالة": رقم في متغيّر يتغيّر مع كل نقرة ثم
+   يُكتب على الصفحة من جديد. */
+(function counterDemo() {
+  let count = 0; // state / الحالة
+  const num = document.getElementById('counterNum');
+
+  document.getElementById('counterBtn').addEventListener('click', () => {
+    count = count + 1;
+    num.textContent = count;
+  });
+  document.getElementById('counterReset').addEventListener('click', () => {
+    count = 0;
+    num.textContent = '0';
+  });
+})();
+
+/* --- Greeting + lightbulb (DOM demo) / الاسم والمصباح --- */
+function greetingDemo() {
+  const btn = document.getElementById('nameBtn');
+  btn.addEventListener('click', () => {
+    const name = document.getElementById('nameInput').value;
+    const out  = document.getElementById('greeting');
+    if (name.trim() === '') {
+      out.textContent = 'Please type a name / اكتب اسماً من فضلك';
+    } else {
+      out.textContent = 'Hello, ' + name + '! / مرحباً ' + name;
+    }
+  });
+}
+function bulbDemo() {
+  const bulb = document.getElementById('bulb');
+  document.getElementById('lightOn').addEventListener('click', () => {
+    bulb.src = 'https://www.w3schools.com/js/pic_bulbon.gif';  // on / مضاءة
+  });
+  document.getElementById('lightOff').addEventListener('click', () => {
+    bulb.src = 'https://www.w3schools.com/js/pic_bulboff.gif'; // off / مطفأة
+  });
+}
+
+/* ------------------------------------------------------------
+   6) QUIZ — data + render + checking / الاختبار
+   ------------------------------------------------------------ */
+const QUIZ = [
+  { en: 'Which tag creates the biggest heading? / أي وسم يصنع أكبر عنوان؟',
+    opts: ['<h6>', '<h1>', '<head>', '<title>'], ans: 1 },
+  { en: 'Which attribute gives an image its file? / ما الخاصية التي تعطي الصورة ملفها؟',
+    opts: ['alt', 'href', 'src', 'style'], ans: 2 },
+  { en: 'Which property changes text color in CSS? / ما خاصية CSS لتغيير لون النص؟',
+    opts: ['font-color', 'text-style', 'color', 'background'], ans: 2 },
+  { en: 'In the box model, the space OUTSIDE the border is called… / في نموذج الصندوق، المسافة خارج الإطار اسمها…',
+    opts: ['padding', 'margin', 'border', 'content'], ans: 1 },
+  { en: 'Which function finds one element by its id? / أي دالة تجد عنصراً واحداً بواسطة id؟',
+    opts: ['document.querySelectorAll()', 'document.find()', 'document.getElementById()', 'window.select()'], ans: 2 },
+  { en: 'Which listens for a click? / أي سطر يستمع إلى نقرة؟',
+    opts: ['button.on()', 'addEventListener("click", fn)', 'listen(button)', 'btn.run()'], ans: 1 },
+];
+
+/* Render the questions once / رسم الأسئلة مرة واحدة */
+function renderQuiz() {
+  const area = document.getElementById('quizArea');
+  area.innerHTML = '';
+  QUIZ.forEach((q, qi) => {
+    const card = document.createElement('div');
+    card.className = 'quiz-q';
+    card.innerHTML = '<div class="qtitle">' + (qi + 1) + '. ' + q.en + '</div>';
+    q.opts.forEach((opt, oi) => {
+      const b = document.createElement('button');
+      b.className = 'quiz-opt';
+      b.type = 'button';
+      b.textContent = opt;
+      b.addEventListener('click', () => answer(qi, oi, b));
+      card.appendChild(b);
+    });
+    area.appendChild(card);
+  });
+  document.getElementById('quizResult').style.display = 'none';
+}
+
+let quizScore = 0;
+
+function answer(qi, oi, btn) {
+  const q = QUIZ[qi];
+  const card = btn.closest('.quiz-q');
+  if (card.dataset.done) return;               // answered already / أُجيب سابقاً
+  card.dataset.done = '1';
+
+  // mark the chosen option + reveal the correct one
+  card.querySelectorAll('.quiz-opt').forEach((b, i) => {
+    b.disabled = true;
+    if (i === q.ans) b.classList.add('right');    // correct / الصحيحة
+  });
+  if (oi !== q.ans) btn.classList.add('wrong');   // wrong pick / اختيار خاطئ
+
+  if (oi === q.ans) quizScore = quizScore + 1;
+
+  const allDone = document.querySelectorAll('.quiz-q[data-done]').length === QUIZ.length;
+  if (allDone) {
+    const res = document.getElementById('quizResult');
+    res.style.display = 'block';
+    document.getElementById('quizScore').innerHTML =
+      'You scored ' + quizScore + ' / ' + QUIZ.length +
+      ' <span class="ar" lang="ar">— نتيجتك</span>';
+  }
+}
+document.getElementById('quizRetry').addEventListener('click', () => {
+  quizScore = 0;
+  renderQuiz();
+});
+
+/* ------------------------------------------------------------
+   7) THE TRY-IT EDITOR / محرّر "جرّب بنفسك"
+   - "Try it" buttons fill the dropdown & open the editor.
+   - Run ▶ copies the textarea into the preview iframe.
+   - Reset puts the original example back.
+   - The red dot appears when you edit the code.
+   ------------------------------------------------------------ */
+let currentExample = 'skel-doc';
+const edCode = document.getElementById('edCode');
+const edPrev = document.getElementById('edPreview');
+const edSel  = document.getElementById('edExamples');
+
+/* (Re)build the list of examples in the dropdown / بناء قائمة الأمثلة
+   Only RUNNABLE mini-pages go into the dropdown; pure reference
+   cards (css-anatomy, skel-notes) stay inside their lesson only. */
+const EX_LABELS = {
+  'skel-doc': '0 · HTML skeleton / الهيكل',
+  'text-demo': 'HTML · headings & text / العناوين',
+  'media-demo': 'HTML · links & images / الروابط والصور',
+  'form-demo': 'HTML · form / نموذج',
+  'css-color-demo': 'CSS · colors & text / الألوان',
+  'box-demo': 'CSS · box model / نموذج الصندوق',
+  'flex-demo': 'CSS · flexbox / فليكس',
+  'js-intro-demo': 'JS · onclick trick / مقدمة',
+  'js-event-demo': 'JS · click counter / العداد',
+  'js-dom-demo': 'JS · DOM greeting / الاسم'
+};
+function fillExampleDropdown() {
+  edSel.innerHTML = '';
+  Object.keys(EXAMPLES).forEach((key) => {
+    if (key === 'css-anatomy' || key === 'skel-notes') return; // reference only
+    const opt = document.createElement('option');
+    opt.value = key;
+    opt.textContent = EX_LABELS[key] || key;
+    edSel.appendChild(opt);
+  });
+}
+
+function runExample() {
+  const code = edCode.value;
+  // write a fresh page into the iframe, then close its <html>
+  edPrev.contentDocument.open();
+  edPrev.contentDocument.write(code);
+  edPrev.contentDocument.close();
+}
+
+function loadExample(key, openEditor) {
+  if (!EXAMPLES[key]) return;
+  currentExample = key;
+  edCode.value = EXAMPLES[key];
+  edSel.value = key;
+  document.getElementById('edDirty').style.display = 'none';
+  runExample();
+  if (openEditor) document.getElementById('editor').classList.add('open');
+}
+
+/* Every button carrying data-try="key" opens that example */
+document.querySelectorAll('[data-try]').forEach((b) => {
+  b.addEventListener('click', () => loadExample(b.getAttribute('data-try'), true));
+});
+
+edSel.addEventListener('change', () => loadExample(edSel.value, false));
+document.getElementById('edRun').addEventListener('click', () => {
+  runExample();
+  document.getElementById('edDirty').style.display = 'none';
+});
+document.getElementById('edReset').addEventListener('click', () => {
+  loadExample(currentExample, false);
+});
+document.getElementById('edClose').addEventListener('click', () => {
+  document.getElementById('editor').classList.remove('open');
+});
+/* mark dirty while typing / إظهار النقطة الحمراء أثناء الكتابة */
+edCode.addEventListener('input', () => {
+  document.getElementById('edDirty').style.display = 'inline-block';
+});
+/* Escape key closes the editor / زر Esc يغلق المحرّر */
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') document.getElementById('editor').classList.remove('open');
+});
+
+/* ------------------------------------------------------------
+   START — run once when the DOM is ready
+   البداية: تُنفَّذ مرة واحدة عندما يكتمل تحميل بنية الصفحة
+   ------------------------------------------------------------ */
+document.addEventListener('DOMContentLoaded', () => {
+  paintAllCode();            // 1. fill & color all example boxes
+  renderQuiz();              // 2. build the quiz
+  fillExampleDropdown();     // 3. fill editor dropdown
+  boxModel(); colorMixer(); flexUpdate();  // 4. set initial demo values
+  greetingDemo(); bulbDemo();             // 5. wire the DOM demos
+  openLesson('how');         // 6. show the first lesson
+});
+</script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a34fb7e66fbda630',t:'MTc4ODM4NTcwMA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
